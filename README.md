@@ -133,4 +133,4 @@ No entanto, melhorias futuras devem se concentrar na questão da confiabilidade,
 
 # 5. Referência:
 - TANENBAUM, Andrew S. Redes de Computadores. Pearson, 2014.
-- SISTEMAS DISTRIBUÍDOS. CAPÍTULO 6 – SINCRONIZAÇÃO. Slides cedidos pela professora Aline Nascimento e Slides de COS 418: Distributed Systems. http://profs.ic.uff.br/~simone/sd/contaulas/aula12.pdf. Acessado em: 16 de Dezembro de 2023.
+- SISTEMAS DISTRIBUÍDOS. CAPÍTULO 6 – SINCRONIZAÇÃO. Slides cedidos pela professora Aline Nascimento e Slides de COS 418: Distributed Systems. http://profs.ic.uff.br/~simone/sd/contaulas/aula12.pdf. Acessado em: 16 de Fevereiro de 2024.
