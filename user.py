@@ -10,10 +10,10 @@ import time
 import os
 
 # Configurações do chat P2P
-LOCAL_HOST = '172.16.103.8'
+LOCAL_HOST = '172.16.103.6'
 LOCAL_PORT = 8889  # Porta local para comunicação P2P
 BUFFER_SIZE = 1024
-dest_ips = ['172.16.103.7', '172.16.103.6']  # lista ips
+dest_ips = ['172.16.103.7', '172.16.103.8']  # lista ips
 
 dest_port = 8889
 conversa = []
@@ -229,4 +229,3 @@ try:
         pass
 except KeyboardInterrupt:
     peer_socket.close()
-
