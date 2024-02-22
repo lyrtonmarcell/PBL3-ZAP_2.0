@@ -10,16 +10,16 @@ import time
 import os
 
 # Configurações do chat P2P
-LOCAL_HOST = '172.16.103.8'
+LOCAL_HOST = '172.16.103.6'
 LOCAL_PORT = 8889  # Porta local para comunicação P2P
 BUFFER_SIZE = 1024
-dest_ips = ['172.16.103.7', '172.16.103.6']  # lista ips
-dest_ips1 = ['172.16.103.7', '172.16.103.6', '172.16.103.8']
+dest_ips = ['172.16.103.7']  # lista ips
 dest_port = 8889
 conversa = []
 mensagens_conhecidas = {}
 password = b'1234567890123456'
 
+# Funções para gerar hash, derivar chave, criptografar e descriptografar mensagens
 def generate_hash(message):
     return hashlib.sha256(message.encode()).hexdigest()
 
@@ -46,6 +46,7 @@ def decrypt_message(ciphertext, key):
     decrypted_message = decryptor.update(base64.urlsafe_b64decode(ciphertext.encode())) + decryptor.finalize()
     return decrypted_message.decode().rstrip('\0')
 
+# Inicialização de variáveis para controle de tempo e mensagens
 relogio_lamport = 0
 mensagens_pendentes = {}
 mensagens_recebidas = {}
@@ -54,6 +55,7 @@ lock = threading.Lock()
 # Lista para armazenar os tempos do último HEARTBEAT recebido de cada destinatário
 last_heartbeats = {dest_ip: time.time() for dest_ip in dest_ips}
 
+# Função para receber mensagens
 def receive_messages(peer_socket, key):
     timestamp = None
     global relogio_lamport
@@ -73,8 +75,9 @@ def receive_messages(peer_socket, key):
 
             elif timestamp is not None:
                 remetente = LOCAL_HOST if addr[0] == LOCAL_HOST else f"({addr[0]}:{addr[1]})"
-                mensagem = f"{remetente} [{timestamp}] : {decrypt_message(decoded_data, key)}"
+                mensagem = f"{remetente} : {decrypt_message(decoded_data, key)}"
 
+                # Lógica para processar mensagens recebidas
                 if "HISTORICO" not in decrypt_message(decoded_data, key).upper():
                     hash_message = generate_hash(mensagem)
 
@@ -119,7 +122,7 @@ def receive_messages(peer_socket, key):
 
                 if all(len(mensagens_recebidas.get(msg_hash, [])) == len(dest_ips) for msg_hash in mensagens_pendentes):
                     print("Todas as mensagens foram entregues a todos os receptores!")
-
+            # identifica o NACK e o processa
             elif decoded_data.startswith("[NACK:") and decoded_data.endswith("]"):
                 _, hash_nack = decoded_data[1:-1].split(":")
                 if hash_nack in mensagens_recebidas:
@@ -132,6 +135,7 @@ def receive_messages(peer_socket, key):
         except Exception as e:
             print(f"Erro ao receber mensagem P2P: {e}")
 
+# Função para enviar mensagens
 def send_messages(peer_socket, key):
     while True:
         try:
@@ -142,7 +146,7 @@ def send_messages(peer_socket, key):
             # Adiciona a própria mensagem à conversa local
             timestamp_message = f"[RL:{relogio_lamport}]"
             remetente = LOCAL_HOST
-            mensagem_completa = f"{remetente} [{timestamp_message[4:-1]}]: {mensagem}"
+            mensagem_completa = f"{remetente} : {mensagem}"
             conversa.append((mensagem_completa, LOCAL_HOST, relogio_lamport))
             conversa.sort(key=lambda x: (x[2], x[1]))
 
@@ -194,9 +198,7 @@ def send_messages(peer_socket, key):
         except Exception as e:
             print(f"Erro ao enviar mensagem P2P: {e}")
 
-# Lista para armazenar os tempos do último HEARTBEAT ou mensagem recebida de cada destinatário
-last_activities = {dest_ip: time.time() for dest_ip in dest_ips}
-
+# Função para enviar HEARTBEATs periodicamente
 def send_heartbeats(peer_socket):
     while True:
         try:
@@ -215,10 +217,12 @@ def send_heartbeats(peer_socket):
         except Exception as e:
             print(f"Erro ao enviar heartbeat: {e}")
 
+# Criação do socket UDP
 peer_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 peer_socket.bind((LOCAL_HOST, LOCAL_PORT))
 key = derive_key(password)
 
+# Inicialização das threads para receber, enviar mensagens e enviar HEARTBEATs
 receive_thread = threading.Thread(target=receive_messages, args=(peer_socket, key))
 receive_thread.start()
 
@@ -228,11 +232,14 @@ send_thread.start()
 heartbeats_thread = threading.Thread(target=send_heartbeats, args=(peer_socket,))
 heartbeats_thread.start()
 
+# Mensagem de boas-vindas e instruções para encerrar o chat
 print("Bem-vindo ao Chat P2P (UDP)!")
 print("Digite 'sair' para encerrar o chat e HISTORICO para carregar as mensagens enquanto estava offline.")
 
+# Loop principal para manter o programa em execução
 try:
     while True:
         pass
 except KeyboardInterrupt:
     peer_socket.close()
+
