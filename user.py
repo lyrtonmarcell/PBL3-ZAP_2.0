@@ -14,7 +14,7 @@ LOCAL_HOST = '172.16.103.8'
 LOCAL_PORT = 8889  # Porta local para comunicação P2P
 BUFFER_SIZE = 1024
 dest_ips = ['172.16.103.7', '172.16.103.6']  # lista ips
-dest_ips1 = ['172.16.103.7', '172.16.103.6', '172.16.103.8']
+
 dest_port = 8889
 conversa = []
 mensagens_conhecidas = {}
@@ -73,7 +73,7 @@ def receive_messages(peer_socket, key):
 
             elif timestamp is not None:
                 remetente = LOCAL_HOST if addr[0] == LOCAL_HOST else f"({addr[0]}:{addr[1]})"
-                mensagem = f"{remetente} [{timestamp}] : {decrypt_message(decoded_data, key)}"
+                mensagem = f"{remetente} : {decrypt_message(decoded_data, key)}"
 
                 if "HISTORICO" not in decrypt_message(decoded_data, key).upper():
                     hash_message = generate_hash(mensagem)
@@ -142,7 +142,7 @@ def send_messages(peer_socket, key):
             # Adiciona a própria mensagem à conversa local
             timestamp_message = f"[RL:{relogio_lamport}]"
             remetente = LOCAL_HOST
-            mensagem_completa = f"{remetente} [{timestamp_message[4:-1]}]: {mensagem}"
+            mensagem_completa = f"{remetente} : {mensagem}"
             conversa.append((mensagem_completa, LOCAL_HOST, relogio_lamport))
             conversa.sort(key=lambda x: (x[2], x[1]))
 
