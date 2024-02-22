@@ -10,10 +10,10 @@ import time
 import os
 
 # Configurações do chat P2P
-LOCAL_HOST = '172.16.103.6'
+LOCAL_HOST = '172.16.103.8'
 LOCAL_PORT = 8889  # Porta local para comunicação P2P
 BUFFER_SIZE = 1024
-dest_ips = ['172.16.103.7', '172.16.103.8']  # lista ips
+dest_ips = ['172.16.103.7', '172.16.103.6']  # lista ips
 
 dest_port = 8889
 conversa = []
@@ -191,8 +191,11 @@ def send_messages(peer_socket, key):
 last_activities = {dest_ip: time.time() for dest_ip in dest_ips}
 
 def send_heartbeats(peer_socket):
+
     while True:
         try:
+            if peer_socket.fileno() == -1:
+                break
             heartbeat_message = "HEARTBEAT"
             for dest_ip in dest_ips:
                 peer_socket.sendto(heartbeat_message.encode('utf-8'), (dest_ip, dest_port))
@@ -205,8 +208,12 @@ def send_heartbeats(peer_socket):
                 print("Um ou mais usuários pararam de enviar HEARTBEATs. Encerrando o chat.")
                 os._exit(1)  # Encerra o programa
 
-        except Exception as e:
-            print(f"Erro ao enviar heartbeat: {e}")
+        except socket.errror as e:
+            if e.errno == 101:
+                print("Erro ao enviar HEARTBEAT: Rede inacessível")
+                time.sleep(20)
+            else:
+                print(f"Erro ao enviar heartbeat: {e}")
 
 peer_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 peer_socket.bind((LOCAL_HOST, LOCAL_PORT))
@@ -229,3 +236,4 @@ try:
         pass
 except KeyboardInterrupt:
     peer_socket.close()
+
