@@ -14,6 +14,7 @@ LOCAL_HOST = '172.16.103.8'
 LOCAL_PORT = 8889  # Porta local para comunicação P2P
 BUFFER_SIZE = 1024
 dest_ips = ['172.16.103.7', '172.16.103.6']  # lista ips
+dest_ips1 = ['172.16.103.7', '172.16.103.6', '172.16.103.8']
 dest_port = 8889
 conversa = []
 mensagens_conhecidas = {}
@@ -137,6 +138,13 @@ def send_messages(peer_socket, key):
             mensagem = input()
             if mensagem.lower() == 'sair':
                 break
+
+            # Adiciona a própria mensagem à conversa local
+            timestamp_message = f"[RL:{relogio_lamport}]"
+            remetente = LOCAL_HOST
+            mensagem_completa = f"{remetente} [{timestamp_message[4:-1]}]: {mensagem}"
+            conversa.append((mensagem_completa, LOCAL_HOST, relogio_lamport))
+            conversa.sort(key=lambda x: (x[2], x[1]))
 
             # Verifica se algum destinatário está offline (não enviou HEARTBEAT recentemente)
             offline_destinos = [dest_ip for dest_ip in dest_ips if time.time() - last_heartbeats[dest_ip] > 1]
