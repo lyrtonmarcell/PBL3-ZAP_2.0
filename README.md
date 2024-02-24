@@ -34,10 +34,14 @@ No código, a recepção de uma mensagem NACK é tratada da seguinte forma:
                     for dest_ip in mensagens_recebidas[hash_nack]:
                         peer_socket.sendto(mensagens[hash_nack].encode('utf-8'), (dest_ip, dest_port))
 ```
-`elif decoded_data.startswith("[NACK:") and decoded_data.endswith("]"):`: Verifica se a mensagem recebida é do tipo NACK, ou seja, se começa com '[NACK': e termina com ']'.
-'_, hash_nack = decoded_data[1:-1].split(":")': Extrai o hash da mensagem NACK para identificar a mensagem original que precisa ser retransmitida.
-'if hash_nack in mensagens_recebidas:': Verifica se o hash da mensagem está na lista de mensagens recebidas.
-'for dest_ip in mensagens_recebidas[hash_nack]:': Para cada destinatário que não recebeu a mensagem original, reenvia a mensagem original para esse destinatário.
+
+`elif decoded_data.startswith("[NACK:") and decoded_data.endswith("]"):`: Verifica se a mensagem recebida é do tipo NACK, ou seja, se começa com `[NACK:` e termina com `]`.
+
+`_, hash_nack = decoded_data[1:-1].split(":")`: Extrai o hash da mensagem NACK para identificar a mensagem original que precisa ser retransmitida.
+
+`if hash_nack in mensagens_recebidas:`: Verifica se o hash da mensagem está na lista de mensagens recebidas.
+
+`for dest_ip in mensagens_recebidas[hash_nack]:`: Para cada destinatário que não recebeu a mensagem original, reenvia a mensagem original para esse destinatário.
 
 Este trecho de código verifica se a mensagem recebida é um NACK e, se for, reenvia a mensagem original para os destinatários que não a receberam corretamente. Isso garante que a mensagem seja entregue a todos os destinatários, aumentando a confiabilidade do sistema de mensagens.
 
