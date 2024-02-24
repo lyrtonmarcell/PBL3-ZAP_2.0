@@ -92,6 +92,13 @@ A função também verifica se algum nó parou de enviar heartbeats, identifican
 
 Essa função é essencial para manter a integridade e a disponibilidade do sistema de mensagens instantâneas P2P, garantindo que os nós da rede estejam ativos e operacionais. Ela ajuda a identificar rapidamente problemas de conectividade e falhas de nós, permitindo uma resposta rápida para restaurar a operação normal do sistema.
 
+Foi implementada uma thread para a função send_heartbeats:
+
+```
+heartbeats_thread = threading.Thread(target=send_heartbeats, args=(peer_socket,))
+heartbeats_thread.start()
+```
+
 A forma de verificar o recebimento do Hearbeat no código é a seguinte:
 
 ```
