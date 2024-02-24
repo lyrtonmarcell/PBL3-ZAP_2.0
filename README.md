@@ -163,6 +163,8 @@ Com a inclusão do NACK e do método HEARTBEAT, o sistema agora é capaz de dete
 
 Portanto, a inclusão desses mecanismos de confiabilidade no sistema P2P de mensagens instantâneas representa um avanço significativo em relação ao projeto anterior, garantindo uma comunicação mais robusta, confiável e eficiente para os usuários.
 
+A implementação atual do sistema adota uma abordagem de pausar o chat e aguardar o retorno do usuário que estava offline para retomar a entrega de mensagens. Embora essa abordagem seja eficaz em garantir que o usuário não perca nenhuma mensagem, ela pode ser considerada não eficiente em termos de experiência do usuário. O ideal seria que o chat continuasse funcionando normalmente e, quando o usuário retornasse, ele receberia as mensagens que foram enviadas durante sua ausência.
+
 # 4. Conclusão
 
 O desenvolvimento bem-sucedido do sistema de mensagens ZapZaps representa um avanço significativo no campo da comunicação empresarial. Os resultados obtidos destacam a eficácia e eficiência da abordagem P2P em oferecer uma solução segura e confiável para a troca de mensagens em grupos de usuários. A integração dos mecanismos de confiabilidade, como o NACK (Negative Acknowledgment) e o método HEARTBEAT, desempenha um papel fundamental nesse sucesso, garantindo que as mensagens sejam entregues corretamente e em ordem, mesmo em ambientes propensos a falhas.
