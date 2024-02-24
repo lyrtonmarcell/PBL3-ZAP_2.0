@@ -84,13 +84,25 @@ def send_heartbeats(peer_socket):
 
 A função send_heartbeats é responsável por enviar periodicamente mensagens de "batimento cardíaco" (heartbeats) para os nós da rede no sistema de mensagens instantâneas P2P. Esses heartbeats são usados para monitorar a disponibilidade e a integridade dos nós, indicando que estão ativos e operacionais. Se um nó não enviar um heartbeat dentro de um intervalo de tempo predefinido, ele é considerado indisponível ou com falha.
 
-No código, a função utiliza um loop infinito (while True) para enviar heartbeats para todos os nós da rede (dest_ips). Ela verifica se o socket está fechado (peer_socket.fileno() == -1) e, se estiver, encerra o loop. Em seguida, ela itera sobre todos os IPs de destino (dest_ips) e envia um heartbeat para cada um deles usando o método sendto do socket UDP.
+No código, a função utiliza um loop infinito `(while True)` para enviar heartbeats para todos os nós da rede `(dest_ips)`. Ela verifica se o socket está fechado `(peer_socket.fileno() == -1)` e, se estiver, encerra o loop. Em seguida, ela itera sobre todos os IPs de destino `(dest_ips)` e envia um heartbeat para cada um deles usando o método sendto do socket UDP.
 
 Após enviar os heartbeats, a função atualiza o tempo do último heartbeat enviado para cada nó no dicionário last_activities. Em seguida, ela aguarda por um curto período de tempo (0.5 segundos) antes de enviar o próximo heartbeat.
 
-A função também verifica se algum nó parou de enviar heartbeats, identificando os nós que não enviaram heartbeats dentro do intervalo de tempo esperado (offline_destinos). Se algum nó estiver offline, a função exibe uma mensagem de aviso e encerra o programa usando os._exit(1).
+A função também verifica se algum nó parou de enviar heartbeats, identificando os nós que não enviaram heartbeats dentro do intervalo de tempo (1 segundo) `(offline_destinos)`. Se algum nó estiver offline, a função exibe uma mensagem de aviso e encerra o programa usando `os._exit(1)`.
 
 Essa função é essencial para manter a integridade e a disponibilidade do sistema de mensagens instantâneas P2P, garantindo que os nós da rede estejam ativos e operacionais. Ela ajuda a identificar rapidamente problemas de conectividade e falhas de nós, permitindo uma resposta rápida para restaurar a operação normal do sistema.
+
+A forma de verificar o recebimento do Hearbeat no código é a seguinte:
+
+```
+# Verifica se algum destinatário está offline (não enviou HEARTBEAT recentemente)
+offline_destinos = [dest_ip for dest_ip in dest_ips if time.time() - last_heartbeats[dest_ip] > 1]
+
+if offline_destinos:
+    print("Mensagem não entregue para todos os receptores, não será enviada para nenhum.")
+```
+
+Este trecho de código verifica se algum dos destinatários está offline, ou seja, se não enviou um "HEARTBEAT" recentemente. Se algum destinatário estiver offline, a mensagem não será enviada para nenhum destinatário, e uma mensagem será exibida informando isso.
 
 # 3. Resultados e Discussões
 
