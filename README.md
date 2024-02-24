@@ -45,6 +45,23 @@ No código, a recepção de uma mensagem NACK é tratada da seguinte forma:
 
 Este trecho de código verifica se a mensagem recebida é um NACK e, se for, reenvia a mensagem original para os destinatários que não a receberam corretamente. Isso garante que a mensagem seja entregue a todos os destinatários, aumentando a confiabilidade do sistema de mensagens.
 
+Outro mecanismo de confirmação de entrega de mensagens que trabalha em conjunto com o Nack é implementado no código abaixo:
+
+```
+                    # Aguarda a confirmação de todos os receptores
+                    start_time = time.time()
+                    while True:
+                        if all(len(mensagens_recebidas.get(msg_hash, [])) == len(dest_ips) for msg_hash in mensagens_pendentes):
+                            break
+                        if time.time() - start_time > 5:  # Timeout de 5 segundos
+                            print("Timeout: mensagem não entregue para todos os receptores")
+                            break
+```
+
+Quando uma mensagem é enviada, o remetente espera receber uma confirmação de todos os receptores de que a mensagem foi entregue com sucesso. A variável ```mensagens_pendentes``` mantém o hash das mensagens enviadas que ainda não receberam confirmação de todos os receptores. O código aguarda até que todas as mensagens na lista ```mensagens_pendentes``` tenham sido recebidas por todos os destinatários antes de prosseguir.
+
+O loop ```while``` aguarda continuamente até que todas as mensagens na lista ```mensagens_pendentes``` tenham sido confirmadas ou até que ocorra um timeout de 5 segundos. Se o timeout ocorrer, uma mensagem de erro é exibida indicando que a mensagem não foi entregue a todos os receptores.
+
 # 2.3 Heartbeat
 
 O método Heartbeat é uma técnica utilizada em sistemas de comunicação para monitorar a disponibilidade e a integridade dos nós da rede. Ele consiste no envio periódico de mensagens de "batimento cardíaco" (heartbeats) entre os nós, indicando que estão ativos e operacionais. Se um nó não enviar um heartbeat dentro de um intervalo de tempo predefinido, ele é considerado indisponível ou com falha.
@@ -110,6 +127,14 @@ if offline_destinos:
 ```
 
 Este trecho de código verifica se algum dos destinatários está offline, ou seja, se não enviou um "HEARTBEAT" recentemente. Se algum destinatário estiver offline, a mensagem não será enviada para nenhum destinatário, e uma mensagem será exibida informando isso.
+
+# Lista para armazenar os tempos do último HEARTBEAT recebido de cada destinatário
+last_heartbeats = {dest_ip: time.time() for dest_ip in dest_ips}
+
+            if decoded_data == "HEARTBEAT":
+                last_heartbeats[addr[0]] = time.time()  # Atualiza o tempo do último heartbeat recebido
+                continue
+
 
 # 3. Resultados e Discussões
 
