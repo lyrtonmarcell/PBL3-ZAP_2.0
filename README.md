@@ -128,13 +128,24 @@ if offline_destinos:
 
 Este trecho de código verifica se algum dos destinatários está offline, ou seja, se não enviou um "HEARTBEAT" recentemente. Se algum destinatário estiver offline, a mensagem não será enviada para nenhum destinatário, e uma mensagem será exibida informando isso.
 
+```
 # Lista para armazenar os tempos do último HEARTBEAT recebido de cada destinatário
 last_heartbeats = {dest_ip: time.time() for dest_ip in dest_ips}
+```
 
+Esse trecho de código cria um dicionário chamado last_heartbeats que é usado para armazenar os tempos do último "HEARTBEAT" recebido de cada destinatário. A estrutura {dest_ip: time.time() for dest_ip in dest_ips} é uma compreensão de dicionário em Python, onde dest_ip é a chave e time.time() é o valor associado a essa chave.
+
+Essa estrutura é útil para rastrear quando foi o último "HEARTBEAT" recebido de cada destinatário, o que é essencial para verificar a disponibilidade dos nós na rede e tomar medidas adequadas se um nó estiver inativo por muito tempo.
+
+Outro trecho do código usado para auxiliar no controle do Heartbeat:
+
+```
             if decoded_data == "HEARTBEAT":
                 last_heartbeats[addr[0]] = time.time()  # Atualiza o tempo do último heartbeat recebido
                 continue
+```
 
+Nesse código verifica se a mensagem recebida é um "HEARTBEAT". Se for, ele atualiza o tempo do último "HEARTBEAT" recebido do endereço IP addr[0] no dicionário ```last_heartbeats```. Isso é feito para garantir que o sistema mantenha o controle de quando cada nó na rede enviou seu último "HEARTBEAT", permitindo assim a detecção de nós que podem estar inativos ou indisponíveis. O continue é usado para pular o restante do loop de recebimento de mensagens e ir para a próxima iteração, uma vez que não há mais ações específicas a serem tomadas para mensagens "HEARTBEAT".
 
 # 3. Resultados e Discussões
 
