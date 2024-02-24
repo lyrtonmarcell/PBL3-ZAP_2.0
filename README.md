@@ -25,12 +25,17 @@ O uso do NACK (Negative Acknowledgment) em sistemas de comunicação é uma téc
 Uma das vantagens do uso do NACK é a sua eficiência em situações de perda de pacotes. Em vez de esperar por um timeout para retransmitir a mensagem, o NACK permite uma detecção mais rápida de falhas e uma recuperação mais ágil. Isso ajuda a reduzir o tempo de espera e a melhorar o desempenho da comunicação.
 
 Além disso, o NACK pode ser usado em conjunto com outros mecanismos de confiabilidade, como o ACK (Acknowledgment), para garantir a entrega confiável de mensagens em ambientes de comunicação complexos. Sua implementação adequada pode contribuir significativamente para a robustez e eficácia de um sistema de comunicação, tornando-o uma ferramenta valiosa para garantir a integridade e a confiabilidade das mensagens transmitidas.
+
+No código, a recepção de uma mensagem NACK é tratada da seguinte forma:
 ```
             elif decoded_data.startswith("[NACK:") and decoded_data.endswith("]"):
                 _, hash_nack = decoded_data[1:-1].split(":")
                 if hash_nack in mensagens_recebidas:
                     for dest_ip in mensagens_recebidas[hash_nack]:
-                        peer_socket.sendto(mensagens[hash_nack].encode('utf-8'), (dest_ip, dest_port))```
+                        peer_socket.sendto(mensagens[hash_nack].encode('utf-8'), (dest_ip, dest_port))
+```
+
+Este trecho de código verifica se a mensagem recebida é um NACK e, se for, reenvia a mensagem original para os destinatários que não a receberam corretamente. Isso garante que a mensagem seja entregue a todos os destinatários, aumentando a confiabilidade do sistema de mensagens.
 
 # 2.3 Heartbeat
 
