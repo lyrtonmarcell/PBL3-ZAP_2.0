@@ -53,6 +53,45 @@ O seu uso é crucial em ambientes onde a detecção rápida de falhas e a manute
 
 Além disso, o método Heartbeat pode ser combinado com outros mecanismos de confiabilidade, como o ACK (Acknowledgment) e o NACK (Negative Acknowledgment), para garantir a entrega confiável de mensagens e a detecção de falhas em ambientes complexos. Sua implementação adequada pode contribuir significativamente para a estabilidade e o desempenho de um sistema de comunicação, tornando-o uma prática recomendada em projetos que exigem alta disponibilidade e confiabilidade.
 
+No código, a função para o Heartbeat é a seguinte:
+
+```
+def send_heartbeats(peer_socket):
+
+    while True:
+        try:
+            if peer_socket.fileno() == -1:
+                break
+            heartbeat_message = "HEARTBEAT"
+            for dest_ip in dest_ips:
+                peer_socket.sendto(heartbeat_message.encode('utf-8'), (dest_ip, dest_port))
+                last_activities[dest_ip] = time.time()  # Atualiza o tempo do último heartbeat enviado
+            time.sleep(0.5)
+
+            # Verifica se algum usuário parou de enviar HEARTBEATs
+            offline_destinos = [dest_ip for dest_ip in dest_ips if time.time() - last_activities.get(dest_ip, 0) > 10]
+            if offline_destinos:
+                print("Um ou mais usuários pararam de enviar HEARTBEATs. Encerrando o chat.")
+                os._exit(1)  # Encerra o programa
+
+        except socket.errror as e:
+            if e.errno == 101:
+                print("Erro ao enviar HEARTBEAT: Rede inacessível")
+                time.sleep(20)
+            else:
+                print(f"Erro ao enviar heartbeat: {e}")
+```
+
+A função send_heartbeats é responsável por enviar periodicamente mensagens de "batimento cardíaco" (heartbeats) para os nós da rede no sistema de mensagens instantâneas P2P. Esses heartbeats são usados para monitorar a disponibilidade e a integridade dos nós, indicando que estão ativos e operacionais. Se um nó não enviar um heartbeat dentro de um intervalo de tempo predefinido, ele é considerado indisponível ou com falha.
+
+No código, a função utiliza um loop infinito (while True) para enviar heartbeats para todos os nós da rede (dest_ips). Ela verifica se o socket está fechado (peer_socket.fileno() == -1) e, se estiver, encerra o loop. Em seguida, ela itera sobre todos os IPs de destino (dest_ips) e envia um heartbeat para cada um deles usando o método sendto do socket UDP.
+
+Após enviar os heartbeats, a função atualiza o tempo do último heartbeat enviado para cada nó no dicionário last_activities. Em seguida, ela aguarda por um curto período de tempo (0.5 segundos) antes de enviar o próximo heartbeat.
+
+A função também verifica se algum nó parou de enviar heartbeats, identificando os nós que não enviaram heartbeats dentro do intervalo de tempo esperado (offline_destinos). Se algum nó estiver offline, a função exibe uma mensagem de aviso e encerra o programa usando os._exit(1).
+
+Essa função é essencial para manter a integridade e a disponibilidade do sistema de mensagens instantâneas P2P, garantindo que os nós da rede estejam ativos e operacionais. Ela ajuda a identificar rapidamente problemas de conectividade e falhas de nós, permitindo uma resposta rápida para restaurar a operação normal do sistema.
+
 # 3. Resultados e Discussões
 
 O desenvolvimento do software de troca de mensagens baseado no modelo peer-to-peer (P2P) com a utilização do socket UDP e tendo a preocupação para o tratamento de falhas na comunicação resultou em êxito na solução inovadora. O ambiente descentralizado promoveu a aplicação uma resolução eficiente as metas e desafios específicos, com diversas vantagens relacionadas ao contexto a que se encontra.
