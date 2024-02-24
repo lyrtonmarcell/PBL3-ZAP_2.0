@@ -2,96 +2,23 @@
 
 # 1. Introdução.
 
-No cenário atual, onde a comunicação instantânea é essencial para a eficiência e colaboração nas empresas, a relevância dos aplicativos de mensagens é inquestionável. Estes aplicativos não apenas facilitam a troca de informações, mas também redefinem os padrões de comunicação, proporcionando recursos avançados como chamadas de vídeo, compartilhamento de arquivos e integração com diversas plataformas. A segurança, através da criptografia de ponta a ponta, é um componente crucial para proteger a privacidade das comunicações.
+No atual cenário empresarial, a comunicação instantânea desempenha um papel essencial na eficiência e colaboração entre equipes, tornando os aplicativos de mensagens uma ferramenta indispensável. Além de facilitar a troca de informações, esses aplicativos redefinem os padrões de comunicação, oferecendo recursos avançados, como chamadas de vídeo, compartilhamento de arquivos e integração com diversas plataformas. A segurança, garantida pela criptografia de ponta a ponta, é um aspecto crucial para proteger a privacidade das comunicações.
 
-Neste contexto, uma startup contratou a equipe de desenvolvimento para criar um software de mensagens instantâneas focado no ambiente corporativo, baseado no modelo peer-to-peer (P2P). O desafio é implementar uma solução descentralizada, sem a dependência de um servidor central, permitindo a troca segura de mensagens de texto entre grupos de usuários dentro de uma empresa.
+Nesse contexto, uma startup contratou uma equipe de desenvolvimento para criar um software de mensagens instantâneas voltado para o ambiente corporativo, baseado no modelo peer-to-peer (P2P). O desafio inicial era implementar uma solução descentralizada, sem a dependência de um servidor central, permitindo a troca segura de mensagens de texto entre grupos de usuários dentro da empresa.
 
-O protótipo deve operar utilizando sockets UDP, considerando o modelo de falhas da Internet, onde tanto mensagens quanto processos podem sofrer falhas de omissão. O serviço deve oferecer confiabilidade, garantindo que uma mensagem seja recebida apenas uma vez e exibida na mesma ordem em todas as interfaces dos usuários. Além disso, mensagens não visualizadas durante a desconexão do usuário devem ser apresentadas quando ele se reconectar ao sistema.
+O protótipo inicial atendeu a esses requisitos, garantindo que as mensagens fossem recebidas apenas uma vez e exibidas na mesma ordem em todas as interfaces dos usuários. Para a próxima versão, além de manter esses requisitos, o sistema deve oferecer um serviço ainda mais confiável. Isso significa que, se uma mensagem for exibida na interface de um usuário, ela também deve ser exibida na interface de todos os outros usuários. Outra adição importante é a capacidade de realizar o tratamento das mensagens não visualizadas durante a desconexão do usuário quando ele se reconectar ao sistema.
 
 # 2. Fundamentação Teórica
 
-Para a construção desse sistema conceitos deveriam ser bem consolidados, tornando-os base para esse trabalho.
+Para a construção desse sistema, é fundamental consolidar conceitos já estabelecidos, que foram detalhadamente explicados em um relatório anterior. Nesse novo contexto, serão abordados os conceitos adicionais necessários para o desenvolvimento do projeto atual. Vale ressaltar que os requisitos anteriores, já elucidados no relatório anterior, continuam válidos e serão mantidos. Essa fundamentação abordará os novos conceitos utilizados para o novo projeto, mantendo a base sólida estabelecida anteriormente.
 
-# 2.1 Modelo Peer-to-Peer (P2P):
+# 2.1 Confiabilidade
 
-As redes P2P surgiram em 1999, inicialmente associadas a controvérsias, como o caso do Napster, mas evoluíram para desempenhar papéis valiosos e legais. Essas redes são formadas por computadores domésticos, chamados peers. A característica fundamental é a capacidade de compartilhar recursos, onde cada computador atua alternadamente como cliente, buscando conteúdo, e como servidor, fornecendo conteúdo para outros peers. O grande atrativo das redes P2P é a ausência de uma infraestrutura centralizada, permitindo que qualquer pessoa contribua para a distribuição de conteúdo. A figura 1 apresenta a esquematização do modelo Peer-to-peer.
+A Internet é propensa a falhas, tanto em termos de mensagens quanto de processos. Adotar uma abordagem que leve em consideração o modelo de falhas na comunicação é crucial para garantir a confiabilidade do sistema, especialmente em situações adversas em que um dos nós, ou seja, peers, apresente falhas ou esteja indisponível.
 
-![Figura 1: Arquitetura do modelo P2P](https://www.gta.ufrj.br/ensino/eel878/redes1-2016-1/16_1/p2p/images/funcionamento.png)
+A confiabilidade em sistemas distribuídos P2P envolve a implementação de estratégias robustas para tratar falhas, manter a consistência dos dados e garantir a recuperação eficiente do sistema em face de perturbações. Essas estratégias são essenciais para garantir que as mensagens sejam entregues apenas uma vez e exibidas na mesma ordem em todas as interfaces dos usuários, conforme requerido pelo sistema de mensagens instantâneas e que seja um serviço confiável em que, se uma mensagem for exibida na interface de um determinado usuário, deve também ser exibida na interface dos outros usuários.
 
-<p align="center">
-  <em>https://www.gta.ufrj.br/ensino/eel878/redes1-2016-1/16_1/p2p/images/funcionamento.png</em><br>
-  <em>Figura 1: Arquitetura do modelo P2P</em>
-</p>
-O protocolo P2P mais proeminente hoje é o BitTorrent, amplamente utilizado para compartilhar vídeos licenciados e de domínio público, além de outros conteúdos volumosos. Ao contrário das CDNs, que exigem uma grande empresa para operação, as redes P2P capacitam qualquer indivíduo com um computador a participar ativamente na distribuição de conteúdo, proporcionando uma notável capacidade de competir com os maiores sites da web. Esse aspecto descentralizado e democratizado das redes P2P é o que as torna atrativas, permitindo que até mesmo indivíduos e pequenas comunidades exerçam influência significativa na distribuição de conteúdo online.
-
-# 2.2 Sockets UDP:
-
-O UDP é um protocolo de transporte não orientado a conexões, integrante do conjunto de protocolos da Internet. Diferentemente do TCP, que oferece uma comunicação confiável e orientada a conexões, o UDP é projetado para simplicidade e eficiência em aplicações que não requerem garantia de entrega.
-
-Principais Características do UDP:
-
-1. Simplicidade:
-
-O UDP é um protocolo simples, oferecendo uma camada básica para envio de datagramas IP encapsulados.
-
-2. Ausência de Conexão:
-
-Não é necessário estabelecer uma conexão antes da transmissão de dados. Isso o torna ideal para aplicações que necessitam de baixa sobrecarga de comunicação.
-
-3. Demultiplexação via Portas:
-
-Utiliza portas para identificar pontos extremos nas máquinas de origem e destino, permitindo a demultiplexação de dados para os processos corretos.
-
-4. Cabeçalho Simples:
-
-O cabeçalho UDP consiste em 8 bytes, contendo informações como portas de origem e destino, comprimento do segmento e um campo de checksum opcional.
-
-5. Checksum para Confiança:
-
-Oferece um campo de checksum opcional para detecção de erros, somando-se ao cabeçalho, dados e um pseudocabeçalho conceitual do IP.
-
-6. Sem Controle de Fluxo ou Retransmissão:
-
-Ao contrário do TCP, o UDP não realiza controle de fluxo, controle de congestionamento ou retransmissão após a chegada de segmentos incorretos. Essas responsabilidades são delegadas aos processos de usuário.
-
-7. Aplicações Cliente-Servidor:
-
-Adequado para aplicações onde o cliente envia solicitações curtas e espera respostas curtas do servidor, como no caso do DNS (Domain Name System).
-
-8. Eficiência em Comunicações Simples:
-
-Enquanto aplicações que exigem controle preciso sobre o fluxo, erros ou sincronização podem optar por TCP, o UDP é eficiente em situações onde menos mensagens e preparação inicial são necessárias.
-
-# 2.3 Relógio Lógico - Relógio de Lamport
-
-Em sistemas distribuídos, onde múltiplos processos operam independentemente, a coordenação temporal é crucial para garantir a consistência e a ordem das operações. O Relógio Lógico de Lamport, proposto por Leslie Lamport em 1978, é uma abordagem para estabelecer uma noção parcial de ordem entre eventos em sistemas distribuídos, sem depender de relógios físicos precisos.
-
-O relógio de Lamport se aplica em ambientes distribuídos permitindo que cada evento em um processo seja marcado com um carimbo de tempo lógico. Essa marcação é uma tupla de dois elementos: o tempo local do processo e o identificador único do processo, desse modo estabelece-se uma relação de ordem parcial entre eventos, caso o evento A precede o evento B, então o carimbo de tempo lógico de A é menor que o de B, fazendo com que sempre que se ocorre um evento, o carimbo de tempo do processo é incrementado. No entanto, embora eficaz para estabelecer uma ordem parcial entre eventos, o Relógio Lógico de Lamport não lida com as variações nos atrasos de comunicação nem com os desvios nos relógios físicos dos processos.
-
-# 2.4 Criptografia
-
-A criptografia, derivada das palavras gregas para "escrita secreta", possui uma longa história de milhares de anos, desempenhando um papel crucial em contextos militares, diplomáticos, memorativos e românticos. Antes dos computadores, as limitações incluíam a habilidade dos criptografistas em realizar transformações, frequentemente em ambientes desafiadores, como em guerras, por exemplo, tornando necessária a alteração de métodos criptográficos rapidamente, em resposta às ameaças, resultando em grande desafios.
-
-Os modelos criptográficos evoluiram bastante ao longo da sua tragetória, o modelo tradicional envolve a transformação de texto simples para texto cifrado através de uma função parametrizada pela chave. O texto cifrado é transmitido, mesmo que o intruso o escute, sem poder decifrá-lo devido à ausência da chave, porém para esse trabalho foi utilizado o modelo de chave pública, o qual foi uma inovação crucial no mundo criptográfico, no qual existem duas chaves diferentes: uma chave pública utilizada para criptografar e uma chave privada para descriptografar, permitindo comunicações seguras sem a necessidade de compartilhar a chave privada. A figura 2 representa o esquemático do modelo criptografico de chave pública.
-
-![Figura 2: Modelo de chave pública](https://www.universidadejava.com.br/images/2020-05-23-criptografia-assimetrica-01.png)
-
-<p align="center">
-  <em>https://www.universidadejava.com.br/images/2020-05-23-criptografia-assimetrica-01.png</em><br>
-  <em>Figura 2: Modelo de chave pública</em>
-</p>
-
-# 2.5 Base64
-
-Base64 é um esquema de codificação que representa dados binários de forma textual. Ele converte sequências de bytes (dados binários) em uma sequência de caracteres ASCII. O termo "64" indica que cada bloco de dados de 8 bits é representado usando 64 caracteres diferentes, geralmente escolhidos de um conjunto predefinido de caracteres ASCII. É frequentemente utilizado para codificar dados binários, como imagens, arquivos anexos de e-mails, ou qualquer tipo de dado binário que precise ser transmitido através de protocolos de texto, como HTTP, XML, ou em campos de dados de formulários HTML.
-
-# 2.6 Confiabilidade
-
-O ambiente da Internet é propenso a falhas, tanto em termos de mensagens quanto de processos, adotar uma abordagem que leve em consideração o modelo de falhas na comunicação é crucial para garantir a confiabilidade do sistema, mesmo em situações adversas em que um dos nós, ou seja, peers apresentem falhas ou estejam indisponíveis. 
-
-A implementação de estratégias robustas para realizar o tratamento de falhas, manter a consistência dos dados e garantir a recuperação eficiente do sistema em face de perturbações é papel da confiabilidade em sistemas distribuídos P2P.
-
-# 2.7 NACK 
+# 2.2 NACK 
 
 O uso do NACK (Negative Acknowledgment) em sistemas de comunicação é uma técnica essencial para garantir a confiabilidade na entrega de mensagens. O NACK é enviado por um receptor para indicar que uma mensagem não foi recebida corretamente ou foi perdida durante a transmissão. Ao receber um NACK, o remetente pode reenviar a mensagem, garantindo que ela seja entregue com sucesso.
 
@@ -99,7 +26,7 @@ Uma das vantagens do uso do NACK é a sua eficiência em situações de perda de
 
 Além disso, o NACK pode ser usado em conjunto com outros mecanismos de confiabilidade, como o ACK (Acknowledgment), para garantir a entrega confiável de mensagens em ambientes de comunicação complexos. Sua implementação adequada pode contribuir significativamente para a robustez e eficácia de um sistema de comunicação, tornando-o uma ferramenta valiosa para garantir a integridade e a confiabilidade das mensagens transmitidas.
 
-# 2.8 Heartbeat
+# 2.3 Heartbeat
 
 O método Heartbeat é uma técnica utilizada em sistemas de comunicação para monitorar a disponibilidade e a integridade dos nós da rede. Ele consiste no envio periódico de mensagens de "batimento cardíaco" (heartbeats) entre os nós, indicando que estão ativos e operacionais. Se um nó não enviar um heartbeat dentro de um intervalo de tempo predefinido, ele é considerado indisponível ou com falha.
 
